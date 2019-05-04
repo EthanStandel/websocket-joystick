@@ -7,7 +7,8 @@ import "./Joystick.scss";
 
 export interface Props {  };
 export interface State {
-    draggableStyle: any; // styles
+    handleBaseStyle: any;
+    handleStyle: any;
     dragState: {
         x: number;
         y: number;
@@ -20,13 +21,14 @@ export class Joystick extends React.Component<Props, State> {
     private readonly TRANSITION_TIME = 200; //ms
 
     public state = {
-        draggableStyle: {  },
+        handleBaseStyle: {  },
+        handleStyle: {  },
         dragState: this.DEFAULT_DRAG_STATE
     };
 
     private updateTransition(transition: string) {
         this.setState({
-            draggableStyle: { ...this.state.draggableStyle, transition },
+            handleStyle: { ...this.state.handleStyle, transition },
             dragState: this.DEFAULT_DRAG_STATE
         });
     }
@@ -36,33 +38,41 @@ export class Joystick extends React.Component<Props, State> {
         setTimeout(() => this.updateTransition("initial"), this.TRANSITION_TIME);
     }
 
+    private centerElementStyles(joystick: HTMLElement, elementToCenter: HTMLElement): any {
+        const handleTop = (joystick.clientHeight / 2) - (elementToCenter.clientHeight / 2);
+        const handleLeft = (joystick.clientWidth / 2) - (elementToCenter.clientWidth / 2);
+
+        return { top: `${handleTop}px`, left: `${handleLeft}px` };
+    }
+
     public componentDidMount() {
         const joystickElement = ReactDOM.findDOMNode(this) as HTMLElement;
         const handleElement = joystickElement.querySelector(".handle") as HTMLElement;
+        const handleBaseElement = joystickElement.querySelector(".handleBase") as HTMLElement;
 
-        const top = (joystickElement.clientHeight / 2) - (handleElement.clientHeight / 2);
-        const left = (joystickElement.clientWidth / 2) - (handleElement.clientWidth / 2);
+        const handleStyle = this.centerElementStyles(joystickElement, handleElement);
+        const handleBaseStyle = this.centerElementStyles(joystickElement, handleBaseElement);
 
-        const draggableStyle = { top: `${top}px`, left: `${left}px` };
-
-        this.setState({ draggableStyle });
+        this.setState({ ...this.state, handleStyle, handleBaseStyle });
     }
 
     public render(): React.ReactNode {
         return (
             <div className={Joystick.name}>
+
+                <div className="handleBase" style={this.state.handleBaseStyle}></div>
+
                 <Draggable position={this.state.dragState} onStop={() => this.resetDragState()}>
-                    <div className="draggableElement" style={this.state.draggableStyle}>
+                    <div className="draggableElement" style={this.state.handleStyle}>
                         <Fab className="handle"
                              variant="round"
                              size="large"
                              color="secondary">
-                            <span className="emoji">
-                                🕹
-                            </span>
+                            <div></div>
                         </Fab>
                     </div>
                 </Draggable>
+
             </div>
         );
     }
