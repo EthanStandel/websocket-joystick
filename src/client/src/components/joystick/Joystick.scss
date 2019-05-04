@@ -1,0 +1,23 @@
+.Joystick {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(#c5c5c5, #6a6a6a);
+
+    .draggableElement {
+        position: absolute;
+    }
+
+    .handle {
+
+        // Force override default Fab styles
+        cursor: grab !important;
+        &:active {
+            cursor: grabbing !important;
+        }
+    
+        // Account for Emoji text-alignment
+        .emoji {
+            padding-left: 5px;
+        }
+    }
+}
