@@ -21,6 +21,9 @@ $knob-color: red;
     }
 
     .draggableElement {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
         border-radius: 50%;
         background-color: $knob-color;
         box-shadow: $knob-box-shadow;

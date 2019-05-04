@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Draggable from 'react-draggable';
-import { ReplaySubject } from "rxjs";
 
 import "./Joystick.scss";
 
@@ -24,8 +23,6 @@ export interface JoystickState {
 
 export class Joystick extends React.Component<Props, State> {
 
-    public readonly joystickState$ = new ReplaySubject<JoystickState>();
-
     private readonly DEFAULT_DRAG_STATE = { x: 0, y: 0 };
     private readonly TRANSITION_TIME = 200; //ms
 
@@ -39,16 +36,6 @@ export class Joystick extends React.Component<Props, State> {
         knobStyle: {  },
         dragState: this.DEFAULT_DRAG_STATE
     };
-
-    public constructor(props: Props, state: State) {
-        super(props, state);
-
-        this.joystickState$.subscribe(this.props.onUpdateJoystickState);
-    }
-
-    public componentWillUnmount() {
-        this.joystickState$.complete();
-    }
 
     public componentDidMount() {
         this.joystickElement = ReactDOM.findDOMNode(this) as HTMLElement;
@@ -74,7 +61,9 @@ export class Joystick extends React.Component<Props, State> {
                 <Draggable position={this.state.dragState}
                            onDrag={event => this.onDrag(event as MouseEvent)}
                            onStop={() => this.onStop()}>
-                    <div className="draggableElement" style={this.state.knobStyle} />
+                    <div className="draggableElement" style={this.state.knobStyle}>
+                        Drag 🕹 me!
+                    </div>
                 </Draggable>
 
             </div>
@@ -141,7 +130,7 @@ export class Joystick extends React.Component<Props, State> {
     }
 
     private updateJoystickState(x: number, y: number) {
-        this.joystickState$.next({
+        this.props.onUpdateJoystickState({
             directionalDegree: this.calculateDirectionalDegree(x, y),
             powerPercentage: this.calculatePowerPercentage(x, y)
         });
