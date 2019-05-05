@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+      "module": "commonjs",
+      "esModuleInterop": true,
+      "target": "es5",
+      "moduleResolution": "node",
+      "strict": true,
+      "strictNullChecks": false,
+      "sourceMap": true,
+      "outDir": "dist",
+      "baseUrl": ".",
+      "paths": {
+          "*": [
+              "node_modules/*",
+              "src/types/*"
+          ]
+      },
+      "lib": [
+          "es2018"
+      ]
+  },
+  "include": [
+      "./**/*"
+  ]
+}
