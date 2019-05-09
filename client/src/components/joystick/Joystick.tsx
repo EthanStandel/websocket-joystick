@@ -1,5 +1,5 @@
 import React from 'react';
-import Draggable from 'react-draggable';
+import Draggable, { DraggableBounds } from 'react-draggable';
 import { merge, of, fromEvent, Subscription } from 'rxjs';
 
 import './Joystick.scss';
@@ -9,6 +9,8 @@ export interface Props {
 };
 export interface State {
     handleStyle: any;
+    handleBounds: DraggableBounds;
+    containerStyle: any;
     dragState: {
         x: number;
         y: number;
@@ -32,6 +34,13 @@ export class Joystick extends React.Component<Props, State> {
 
     public state = {
         handleStyle: {  },
+        containerStyle: {  },
+        handleBounds: {
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0
+        },
         dragState: this.DEFAULT_DRAG_STATE
     };
 
@@ -56,8 +65,9 @@ export class Joystick extends React.Component<Props, State> {
     public render(): React.ReactNode {
         return (
             <div className={Joystick.name}>
-                <div className="knobBase">
+                <div className="knobBase" style={this.state.containerStyle}>
                     <Draggable position={this.state.dragState}
+                               bounds={this.state.handleBounds}
                                onDrag={event => this.onDrag(event as MouseEvent)}
                                onStop={() => this.onStop()}>
                         <div className="handle" style={this.state.handleStyle}>
@@ -75,20 +85,28 @@ export class Joystick extends React.Component<Props, State> {
             const joystickContainer = document.querySelector(".Joystick") as HTMLElement;
             const joystickBase = document.querySelector(".knobBase") as HTMLElement;
             const isPortrait = joystickContainer.clientHeight > joystickContainer.clientWidth;
-            const maxDiameter = `${isPortrait ? joystickBase.clientWidth : joystickBase.clientHeight}px`;
+            const maxDiameterValue = isPortrait ? joystickBase.clientWidth : joystickBase.clientHeight;
+            const maxRadiusValue = maxDiameterValue / 2;
+            const maxDiameter = `${maxDiameterValue}px`;
+    
 
-            if (isPortrait) {
-                joystickBase.style.maxHeight = maxDiameter;
-                joystickBase.style.maxWidth = 'unset';
-            } else {
-                joystickBase.style.maxHeight = 'unset';
-                joystickBase.style.maxWidth = maxDiameter;
-            }
+            this.setState({ ...this.state, 
+                handleBounds: {
+                    top: -maxRadiusValue,
+                    bottom: maxRadiusValue,
+                    left: -maxRadiusValue,
+                    right: maxRadiusValue
+                }, containerStyle: {
+                    maxHeight: isPortrait ? maxDiameter : 'unset',
+                    maxWidth: isPortrait ? 'unset' : maxDiameter
+                }
+            });
         });
     }
 
     private updateTransition(transition: string) {
         this.setState({
+            ...this.state,
             handleStyle: { transition },
             dragState: this.DEFAULT_DRAG_STATE
         });
