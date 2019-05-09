@@ -1,34 +1,35 @@
-$handle-color: #6a6a6a;
-
+$base-color: #c5c5c5;
 $knob-base-color: black;
-$knob-base-gradient: linear-gradient(#c5c5c5, #{$handle-color});
-
-$knob-box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
-$knob-color: red;
+$handle-color: red;
+$handle-box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+$handle-diameter: 150px;
 
 .Joystick {
-    height: 100%;
-    width: 100%;
-    background: $knob-base-gradient;
+    background: $base-color;
+
+    &, .knobBase {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+    }
 
     .knobBase {
         background: $knob-base-color;
         border-radius: 50%;
     }
 
-    .draggableElement, .knobBase {
-        position: absolute;
-    }
-
-    .draggableElement {
+    .handle {
         display: flex;
         justify-content: space-around;
         align-items: center;
         border-radius: 50%;
-        background-color: $knob-color;
-        box-shadow: $knob-box-shadow;
+        background-color: $handle-color;
+        box-shadow: $handle-box-shadow;
+        height: $handle-diameter;
+        width: $handle-diameter;
 
-        // Force override default Fab styles
         cursor: grab;
         &:active {
             cursor: grabbing;

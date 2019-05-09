@@ -1,15 +1,14 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import Draggable from 'react-draggable';
+import { merge, of, fromEvent, Subscription } from 'rxjs';
 
-import "./Joystick.scss";
+import './Joystick.scss';
 
 export interface Props {
     onUpdateJoystickState: (state: JoystickState) => any;
 };
 export interface State {
-    knobBaseStyle: any;
-    knobStyle: any;
+    handleStyle: any;
     dragState: {
         x: number;
         y: number;
@@ -29,17 +28,19 @@ export class Joystick extends React.Component<Props, State> {
     private readonly isPortraitView = window.innerWidth / window.innerHeight < 1;
     private readonly selectiveRadius = (this.isPortraitView ? window.innerWidth : window.innerHeight) / 2;
 
-    private joystickElement: HTMLElement;
+    private baseResizeSubscription: Subscription;
 
     public state = {
-        knobBaseStyle: {  },
-        knobStyle: {  },
+        handleStyle: {  },
         dragState: this.DEFAULT_DRAG_STATE
     };
 
     public componentDidMount() {
-        this.joystickElement = ReactDOM.findDOMNode(this) as HTMLElement;
-        this.centerAndSizeAbsoluteElements();
+        this.createBaseResizeSubscription();
+    }
+
+    public componentWillUnmount() {
+        this.baseResizeSubscription.unsubscribe();
     }
 
     public onDrag(event: MouseEvent | TouchEvent) {
@@ -55,25 +56,40 @@ export class Joystick extends React.Component<Props, State> {
     public render(): React.ReactNode {
         return (
             <div className={Joystick.name}>
-
-                <div className="knobBase" style={this.state.knobBaseStyle} />
-
-                <Draggable position={this.state.dragState}
-                           onDrag={event => this.onDrag(event as MouseEvent)}
-                           onStop={() => this.onStop()}>
-                    <div className="draggableElement" style={this.state.knobStyle}>
-                        Drag 🕹 me!
-                    </div>
-                </Draggable>
+                <div className="knobBase">
+                    <Draggable position={this.state.dragState}
+                               onDrag={event => this.onDrag(event as MouseEvent)}
+                               onStop={() => this.onStop()}>
+                        <div className="handle" style={this.state.handleStyle}>
+                            Drag 🕹 me!
+                        </div>
+                    </Draggable>
+                </div>
 
             </div>
         );
     }
 
+    private createBaseResizeSubscription() {
+        this.baseResizeSubscription = merge(of(true), fromEvent(window, 'resize')).subscribe(() => {
+            const joystickContainer = document.querySelector(".Joystick") as HTMLElement;
+            const joystickBase = document.querySelector(".knobBase") as HTMLElement;
+            const isPortrait = joystickContainer.clientHeight > joystickContainer.clientWidth;
+            const maxDiameter = `${isPortrait ? joystickBase.clientWidth : joystickBase.clientHeight}px`;
+
+            if (isPortrait) {
+                joystickBase.style.maxHeight = maxDiameter;
+                joystickBase.style.maxWidth = 'unset';
+            } else {
+                joystickBase.style.maxHeight = 'unset';
+                joystickBase.style.maxWidth = maxDiameter;
+            }
+        });
+    }
 
     private updateTransition(transition: string) {
         this.setState({
-            knobStyle: { ...this.state.knobStyle, transition },
+            handleStyle: { transition },
             dragState: this.DEFAULT_DRAG_STATE
         });
     }
@@ -83,31 +99,6 @@ export class Joystick extends React.Component<Props, State> {
         setTimeout(() => this.updateTransition("initial"), this.TRANSITION_TIME);
 
         this.updateJoystickState(0, 0);
-    }
-
-    private centerElementStyles(joystick: HTMLElement, centerableElementWidth: number): any {
-        const knobTop = (joystick.clientHeight / 2) - (centerableElementWidth / 2);
-        const knobLeft = (joystick.clientWidth / 2) - (centerableElementWidth / 2);
-
-        return { top: `${knobTop}px`, left: `${knobLeft}px` };
-    }
-
-    private centerAndSizeAbsoluteElements() {
-        const widthBase = this.isPortraitView ? window.innerWidth : window.innerHeight;
-        
-        const knobDiameter = widthBase * .5;
-        const knobStyle = {
-            width: `${knobDiameter}px`, height: `${knobDiameter}px`,
-            ...this.centerElementStyles(this.joystickElement, knobDiameter)
-        };
-
-        const knobBaseDiameter = widthBase * .8;
-        const knobBaseStyle = {
-            width: `${knobBaseDiameter}px`, height: `${knobBaseDiameter}px`,
-            ...this.centerElementStyles(this.joystickElement, knobBaseDiameter)
-        };
-
-        this.setState({ ...this.state, knobStyle, knobBaseStyle });
     }
 
     private calculatePowerPercentage(x: number, y: number) {
