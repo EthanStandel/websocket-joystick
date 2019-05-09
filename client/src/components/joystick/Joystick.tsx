@@ -7,6 +7,7 @@ import './Joystick.scss';
 export interface Props {
     onUpdateJoystickState: (state: JoystickState) => any;
 };
+
 export interface State {
     // Applies transition on reset
     handleStyle: any;
@@ -30,25 +31,19 @@ export interface JoystickState {
 
 export class Joystick extends React.Component<Props, State> {
 
-    private readonly DEFAULT_DRAG_STATE = { x: 0, y: 0 };
-    private readonly TRANSITION_TIME = 200; //ms
-
-    private readonly isPortraitView = window.innerWidth / window.innerHeight < 1;
-    private readonly selectiveRadius = (this.isPortraitView ? window.innerWidth : window.innerHeight) / 2;
-
-    private baseResizeSubscription: Subscription;
-
-    public state = {
+    private readonly INITIAL_STATE = {
         handleStyle: {  },
         containerStyle: {  },
-        handleBounds: {
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0
-        },
-        dragState: this.DEFAULT_DRAG_STATE
+        handleBounds: { top: 0, right: 0, bottom: 0, left: 0 },
+        dragState: { x: 0, y: 0 }
     };
+
+    private readonly TRANSITION_TIME = 200; //ms
+    private readonly isPortraitView = window.innerWidth / window.innerHeight < 1;
+    private readonly selectiveRadius = (this.isPortraitView ? window.innerWidth : window.innerHeight) / 2;
+    private baseResizeSubscription: Subscription;
+
+    public readonly state = this.INITIAL_STATE;
 
     public componentDidMount() {
         this.createBaseResizeSubscription();
@@ -71,7 +66,6 @@ export class Joystick extends React.Component<Props, State> {
                         </div>
                     </Draggable>
                 </div>
-
             </div>
         );
     }
@@ -103,20 +97,18 @@ export class Joystick extends React.Component<Props, State> {
         this.setState({
             ...this.state,
             handleStyle: { transition },
-            dragState: this.DEFAULT_DRAG_STATE
+            dragState: this.INITIAL_STATE.dragState
         });
     }
 
     private onStop() {
         this.updateTransition(`${this.TRANSITION_TIME}ms ease-in-out`);
         setTimeout(() => this.updateTransition("initial"), this.TRANSITION_TIME);
-
         this.updateJoystickState(0, 0);
     }
 
     private calculatePowerPercentage(x: number, y: number) {
         const hypotenuse = Math.sqrt(x**2 + y**2);
-
         const powerPercentageMax = 100 * (hypotenuse / this.selectiveRadius);
         const powerPercentage = powerPercentageMax > 100 ? 100 : Math.round(powerPercentageMax);
 
