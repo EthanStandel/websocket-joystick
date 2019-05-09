@@ -19,7 +19,7 @@ export class RootElement extends React.Component {
             tap(() => console.log("Socket open")),
             switchMapTo(this.joystickState$),
             map(state => JSON.stringify(state))
-            ).subscribe(stateString => socket.send(stateString));
+        ).subscribe(stateString => socket.send(stateString));
     }
 
     public render(): React.ReactNode {
