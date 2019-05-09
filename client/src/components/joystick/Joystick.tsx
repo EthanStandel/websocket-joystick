@@ -8,9 +8,15 @@ export interface Props {
     onUpdateJoystickState: (state: JoystickState) => any;
 };
 export interface State {
+    // Applies transition on reset
     handleStyle: any;
+    // Bounds handle to the square containing
+    // the largest available circle
     handleBounds: DraggableBounds;
+    // Bounds contents to a square 
     containerStyle: any;
+    // Resets the handle to the center
+    // on reset
     dragState: {
         x: number;
         y: number;
@@ -52,23 +58,13 @@ export class Joystick extends React.Component<Props, State> {
         this.baseResizeSubscription.unsubscribe();
     }
 
-    public onDrag(event: MouseEvent | TouchEvent) {
-        const clientX = "changedTouches" in event ? event.changedTouches[0].clientX : event.clientX;
-        const clientY = "changedTouches" in event ? event.changedTouches[0].clientY : event.clientY;
-
-        const x = (clientX - window.innerWidth / 2);
-        const y = (window.innerHeight / 2 - clientY);
-
-        this.updateJoystickState(x, y);
-    }
-
     public render(): React.ReactNode {
         return (
             <div className={Joystick.name}>
                 <div className="knobBase" style={this.state.containerStyle}>
                     <Draggable position={this.state.dragState}
                                bounds={this.state.handleBounds}
-                               onDrag={event => this.onDrag(event as MouseEvent)}
+                               onDrag={(_event, { x, y }) => this.updateJoystickState(x, y)}
                                onStop={() => this.onStop()}>
                         <div className="handle" style={this.state.handleStyle}>
                             Drag 🕹 me!
@@ -88,7 +84,6 @@ export class Joystick extends React.Component<Props, State> {
             const maxDiameterValue = isPortrait ? joystickBase.clientWidth : joystickBase.clientHeight;
             const maxRadiusValue = maxDiameterValue / 2;
             const maxDiameter = `${maxDiameterValue}px`;
-    
 
             this.setState({ ...this.state, 
                 handleBounds: {
@@ -129,7 +124,7 @@ export class Joystick extends React.Component<Props, State> {
     }
 
     private calculateDirectionalDegree(x: number, y: number) {
-        const inverseTanResult = Math.round(Math.atan2(y, x) * 180 / Math.PI);
+        const inverseTanResult = Math.round(Math.atan2(-y, x) * 180 / Math.PI);
 
         if (inverseTanResult > 0) {
             return inverseTanResult;
