@@ -25,7 +25,9 @@ export class RootElement extends React.Component {
     public render(): React.ReactNode {
         return (
             <div className="rootContainer">
-                <Joystick onUpdateJoystickState={state => this.joystickState$.next(state)} />
+                <Joystick joystickState$={this.joystickState$}>
+                    Drag 🕹 me!
+                </Joystick>
             </div>
         );
     }

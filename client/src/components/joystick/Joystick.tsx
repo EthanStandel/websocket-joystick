@@ -1,11 +1,14 @@
 import React from 'react';
 import Draggable, { DraggableBounds } from 'react-draggable';
-import { merge, of, fromEvent, Subscription } from 'rxjs';
+import { merge, of, fromEvent, Subscription, Subject } from 'rxjs';
 
 import './Joystick.scss';
 
 export interface Props {
-    onUpdateJoystickState: (state: JoystickState) => any;
+    // Takes in a subject and writes out the state changes to that subject
+    joystickState$: Subject<JoystickState>;
+    // The max power output, defaults to 100
+    maxPower?: number;
 };
 
 export interface State {
@@ -25,11 +28,13 @@ export interface State {
 };
 
 export interface JoystickState {
-    directionalDegree: number;
-    powerPercentage: number;
+    direction: number;
+    power: number;
 };
 
 export class Joystick extends React.Component<Props, State> {
+
+    private readonly DEFAULT_MAX_POWER = 100;
 
     private readonly INITIAL_STATE = {
         handleStyle: {  },
@@ -38,19 +43,16 @@ export class Joystick extends React.Component<Props, State> {
         dragState: { x: 0, y: 0 }
     };
 
-    private readonly TRANSITION_TIME = 200; //ms
-    private readonly isPortraitView = window.innerWidth / window.innerHeight < 1;
-    private readonly selectiveRadius = (this.isPortraitView ? window.innerWidth : window.innerHeight) / 2;
-    private baseResizeSubscription: Subscription;
-
-    public readonly state = this.INITIAL_STATE;
+    public readonly state = { ...this.INITIAL_STATE };
 
     public componentDidMount() {
         this.createBaseResizeSubscription();
     }
 
     public componentWillUnmount() {
-        this.baseResizeSubscription.unsubscribe();
+        if(!!this.baseResizeSubscription) {
+            this.baseResizeSubscription.unsubscribe();
+        }
     }
 
     public render(): React.ReactNode {
@@ -62,7 +64,7 @@ export class Joystick extends React.Component<Props, State> {
                                onDrag={(_event, { x, y }) => this.updateJoystickState(x, y)}
                                onStop={() => this.onStop()}>
                         <div className="handle" style={this.state.handleStyle}>
-                            Drag 🕹 me!
+                            { this.props.children }
                         </div>
                     </Draggable>
                 </div>
@@ -70,16 +72,26 @@ export class Joystick extends React.Component<Props, State> {
         );
     }
 
+    // Time to move the joystick back on release
+    private readonly TRANSITION_TIME = 200; //ms
+
+    // Parent-most rendered div
+    private get joystickContainerElement(): HTMLElement {
+        return document.querySelector(".Joystick") as HTMLElement;
+    }
+
+    // Subscription for when the window resizes, unsubscribes on unmount
+    private baseResizeSubscription: Subscription;
     private createBaseResizeSubscription() {
         this.baseResizeSubscription = merge(of(true), fromEvent(window, 'resize')).subscribe(() => {
-            const joystickContainer = document.querySelector(".Joystick") as HTMLElement;
-            const joystickBase = document.querySelector(".knobBase") as HTMLElement;
-            const isPortrait = joystickContainer.clientHeight > joystickContainer.clientWidth;
-            const maxDiameterValue = isPortrait ? joystickBase.clientWidth : joystickBase.clientHeight;
+            const joystickContainerElement = this.joystickContainerElement;
+            const isPortrait = this.isPortraitView(joystickContainerElement);
+            const maxDiameterValue = this.selectiveDiameter(joystickContainerElement);
             const maxRadiusValue = maxDiameterValue / 2;
             const maxDiameter = `${maxDiameterValue}px`;
 
-            this.setState({ ...this.state, 
+            this.setState({ 
+                ...this.state, 
                 handleBounds: {
                     top: -maxRadiusValue,
                     bottom: maxRadiusValue,
@@ -93,6 +105,7 @@ export class Joystick extends React.Component<Props, State> {
         });
     }
 
+    // Manage the transition for the handle
     private updateTransition(transition: string) {
         this.setState({
             ...this.state,
@@ -101,21 +114,25 @@ export class Joystick extends React.Component<Props, State> {
         });
     }
 
+    // Set a transition, move the handle back to the center and remove the transition
     private onStop() {
         this.updateTransition(`${this.TRANSITION_TIME}ms ease-in-out`);
         setTimeout(() => this.updateTransition("initial"), this.TRANSITION_TIME);
         this.updateJoystickState(0, 0);
     }
 
-    private calculatePowerPercentage(x: number, y: number) {
+    // Calculate the percentage of magnitude to the largest circle
+    private calculatePower(x: number, y: number): number {
         const hypotenuse = Math.sqrt(x**2 + y**2);
-        const powerPercentageMax = 100 * (hypotenuse / this.selectiveRadius);
-        const powerPercentage = powerPercentageMax > 100 ? 100 : Math.round(powerPercentageMax);
+        const maxPower = this.props.maxPower || this.DEFAULT_MAX_POWER;
+        const powerPercentageMax = maxPower * (hypotenuse / (this.selectiveDiameter(this.joystickContainerElement) / 2));
+        const powerPercentage = powerPercentageMax > maxPower ? maxPower : Math.round(powerPercentageMax);
 
         return powerPercentage;
     }
 
-    private calculateDirectionalDegree(x: number, y: number) {
+    // the direction that the joystick is pointed in degrees with respect to the original position
+    private calculateDirection(x: number, y: number): number {
         const inverseTanResult = Math.round(Math.atan2(-y, x) * 180 / Math.PI);
 
         if (inverseTanResult > 0) {
@@ -125,10 +142,21 @@ export class Joystick extends React.Component<Props, State> {
         }
     }
 
+    // Write out to the joystickState$ prop
     private updateJoystickState(x: number, y: number) {
-        this.props.onUpdateJoystickState({
-            directionalDegree: this.calculateDirectionalDegree(x, y),
-            powerPercentage: this.calculatePowerPercentage(x, y)
+        this.props.joystickState$.next({
+            direction: this.calculateDirection(x, y),
+            power: this.calculatePower(x, y)
         });
+    }
+
+    // Determine if the parent div is portrait or landscape
+    private isPortraitView({ clientWidth, clientHeight }: HTMLElement): boolean {
+        return clientWidth / clientHeight < 1;
+    }
+
+    // The diameter to through which the handle can be dragged
+    private selectiveDiameter(element: HTMLElement): number {
+        return (this.isPortraitView(element) ? element.clientWidth : element.clientHeight);
     }
 }
