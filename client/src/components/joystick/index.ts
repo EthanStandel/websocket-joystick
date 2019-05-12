@@ -1,1 +1,1 @@
-export * from './Joystick';
+export * from "./Joystick";

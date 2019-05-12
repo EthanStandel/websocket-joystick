@@ -1,6 +1,6 @@
-import React from 'react';
-import { Route, BrowserRouter, Redirect, Switch } from 'react-router-dom';
-import { JoystickPage } from '../pages/joystick/JoystickPage';
+import React from "react";
+import { Route, BrowserRouter, Redirect, Switch } from "react-router-dom";
+import { JoystickPage } from "../pages/joystick/JoystickPage";
 
 export class Routes extends React.Component {
 

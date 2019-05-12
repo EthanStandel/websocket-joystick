@@ -1,8 +1,8 @@
-import React from 'react';
-import Draggable, { DraggableBounds } from 'react-draggable';
-import { merge, of, fromEvent, Subscription, Subject } from 'rxjs';
+import React from "react";
+import Draggable, { DraggableBounds } from "react-draggable";
+import { merge, of, fromEvent, Subscription, Subject } from "rxjs";
 
-import './Joystick.scss';
+import "./Joystick.scss";
 
 export interface Props {
     // Takes in a subject and writes out the state changes to that subject
@@ -86,7 +86,7 @@ export class Joystick extends React.Component<Props, State> {
     // Subscription for when the window resizes, unsubscribes on unmount
     private baseResizeSubscription: Subscription;
     private createBaseResizeSubscription() {
-        this.baseResizeSubscription = merge(of(true), fromEvent(window, 'resize')).subscribe(() => {
+        this.baseResizeSubscription = merge(of(true), fromEvent(window, "resize")).subscribe(() => {
             const joystickContainerElement = this.joystickContainerElement;
             const isPortrait = this.isPortraitView(joystickContainerElement);
             const maxDiameterValue = this.selectiveDiameter(joystickContainerElement);
@@ -101,8 +101,8 @@ export class Joystick extends React.Component<Props, State> {
                     left: -maxRadiusValue,
                     right: maxRadiusValue
                 }, containerStyle: {
-                    maxHeight: isPortrait ? maxDiameter : 'unset',
-                    maxWidth: isPortrait ? 'unset' : maxDiameter
+                    maxHeight: isPortrait ? maxDiameter : "unset",
+                    maxWidth: isPortrait ? "unset" : maxDiameter
                 }
             });
         });

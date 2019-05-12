@@ -1,13 +1,13 @@
-import React from 'react';
+import React from "react";
 
-import { Joystick, JoystickState } from '../../components/joystick/Joystick';
-import { Subject, fromEvent } from 'rxjs';
-import { switchMapTo, tap, map } from 'rxjs/operators';
-import './JoystickPage.scss';
+import { Joystick, JoystickState } from "../../components/joystick/Joystick";
+import { Subject, fromEvent } from "rxjs";
+import { switchMapTo, tap, map } from "rxjs/operators";
+import "./JoystickPage.scss";
 
 export class JoystickPage extends React.Component {
 
-    private readonly SOCKET_URL = 'ws://localhost:8000/';
+    private readonly SOCKET_URL = "ws://localhost:8000/";
     private readonly joystickState$ = new Subject<JoystickState>();
 
     public constructor(props: any) {
