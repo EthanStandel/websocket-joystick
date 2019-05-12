@@ -12,6 +12,12 @@ $handle-diameter: 150px;
         width: 100%;
     }
 
+    &.disabled .handle {
+        &, &:active {
+            cursor: not-allowed;
+        }
+    }
+
     .knobBase {
         background: $knob-base-color;
         border-radius: 50%;

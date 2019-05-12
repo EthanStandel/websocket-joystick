@@ -9,6 +9,8 @@ export interface Props {
     joystickState$: Subject<JoystickState>;
     // The max power output, defaults to 100
     maxPower?: number;
+    // if true locks the joystick in place
+    disabled?: boolean;
 };
 
 export interface State {
@@ -36,7 +38,7 @@ export class Joystick extends React.Component<Props, State> {
 
     private readonly DEFAULT_MAX_POWER = 100;
 
-    private readonly INITIAL_STATE = {
+    private readonly INITIAL_STATE: State = {
         handleStyle: {  },
         containerStyle: {  },
         handleBounds: { top: 0, right: 0, bottom: 0, left: 0 },
@@ -57,9 +59,10 @@ export class Joystick extends React.Component<Props, State> {
 
     public render(): React.ReactNode {
         return (
-            <div className={Joystick.name}>
+            <div className={`${Joystick.name} ${this.props.disabled ? "disabled" : ""}`}>
                 <div className="knobBase" style={this.state.containerStyle}>
-                    <Draggable position={this.state.dragState}
+                    <Draggable disabled={this.props.disabled}
+                               position={this.state.dragState}
                                bounds={this.state.handleBounds}
                                onDrag={(_event, { x, y }) => this.updateJoystickState(x, y)}
                                onStop={() => this.onStop()}>
