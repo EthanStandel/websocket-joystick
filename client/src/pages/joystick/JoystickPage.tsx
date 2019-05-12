@@ -25,7 +25,8 @@ export class JoystickPage extends React.Component {
     public render(): React.ReactNode {
         return (
             <div className="rootContainer">
-                <Joystick joystickState$={this.joystickState$}>
+                <Joystick joystickState$={this.joystickState$}
+                          handleDiameter={150}>
                     Drag 🕹 me!
                 </Joystick>
             </div>

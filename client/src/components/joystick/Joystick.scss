@@ -1,7 +1,6 @@
 $knob-base-color: black;
 $handle-color: red;
 $handle-box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
-$handle-diameter: 150px;
 
 .Joystick {
     &, .knobBase {
@@ -30,8 +29,6 @@ $handle-diameter: 150px;
         border-radius: 50%;
         background-color: $handle-color;
         box-shadow: $handle-box-shadow;
-        height: $handle-diameter;
-        width: $handle-diameter;
 
         cursor: grab;
         &:active {

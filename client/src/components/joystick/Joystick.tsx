@@ -11,6 +11,8 @@ export interface Props {
     maxPower?: number;
     // if true locks the joystick in place
     disabled?: boolean;
+    // handle width in pixels, defaults to 75
+    handleDiameter?: number;
 };
 
 export interface State {
@@ -38,6 +40,9 @@ export class Joystick extends React.Component<Props, State> {
 
     private readonly DEFAULT_MAX_POWER = 100;
 
+    // 75 as default to fit on small mobile screens
+    private readonly DEFAULT_HANDLE_DIAMETER = 75;
+
     private readonly INITIAL_STATE: State = {
         handleStyle: {  },
         containerStyle: {  },
@@ -58,6 +63,15 @@ export class Joystick extends React.Component<Props, State> {
     }
 
     public render(): React.ReactNode {
+        const handleDiameter = this.props.handleDiameter ? 
+            `${this.props.handleDiameter}px` : 
+            `${this.DEFAULT_HANDLE_DIAMETER}px`;
+        const handleStyle = {
+            ...this.state.handleStyle,
+            height: handleDiameter,
+            width: handleDiameter
+        }
+
         return (
             <div className={`${Joystick.name} ${this.props.disabled ? "disabled" : ""}`}>
                 <div className="knobBase" style={this.state.containerStyle}>
@@ -66,7 +80,7 @@ export class Joystick extends React.Component<Props, State> {
                                bounds={this.state.handleBounds}
                                onDrag={(_event, { x, y }) => this.updateJoystickState(x, y)}
                                onStop={() => this.onStop()}>
-                        <div className="handle" style={this.state.handleStyle}>
+                        <div className="handle" style={handleStyle}>
                             { this.props.children }
                         </div>
                     </Draggable>
