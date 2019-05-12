@@ -1,0 +1,25 @@
+.ControllerPage {
+    height: 100vh;
+
+    .topRow {
+        display: flex;
+        justify-content: space-between;
+        height: 50%;
+
+        > * {
+            width: 50%;
+        }
+    }
+
+    .bottomRow {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        height: 50%;
+
+        > * {
+            width: 50%;
+            height: 90%;
+        }
+    }
+}

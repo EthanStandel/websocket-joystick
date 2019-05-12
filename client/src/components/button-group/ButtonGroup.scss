@@ -1,0 +1,28 @@
+.ButtonGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+
+    .topGroup, .bottomGroup {
+        flex-grow: .5;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .topGroup {
+        justify-content: flex-end;
+    }
+
+    .bottomGroup {
+        justify-content: flex-start;
+    }
+    
+    .middleGroup {
+        display: flex;
+        justify-content: space-between;
+
+        // The height of a @material-ui/core/Fab
+        width: 56px * 3;
+    }
+}
