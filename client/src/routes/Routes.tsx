@@ -1,9 +1,8 @@
 import React from 'react';
 import { Route, BrowserRouter, Redirect, Switch } from 'react-router-dom';
+import { JoystickPage } from '../pages/joystick/JoystickPage';
 
-import { JoystickPage } from '../../pages/joystick/JoystickPage';
-
-export class RootElement extends React.Component {
+export class Routes extends React.Component {
 
     public render(): React.ReactNode {
         return (

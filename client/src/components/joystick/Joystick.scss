@@ -1,12 +1,9 @@
-$base-color: #c5c5c5;
 $knob-base-color: black;
 $handle-color: red;
 $handle-box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 $handle-diameter: 150px;
 
 .Joystick {
-    background: $base-color;
-
     &, .knobBase {
         display: flex;
         justify-content: space-around;
