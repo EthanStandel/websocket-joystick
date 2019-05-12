@@ -3,7 +3,7 @@ import { Joystick } from "../../components/joystick";
 import { Subject } from "rxjs";
 
 import "./ControllerPage.scss";
-import { ButtonGroup, Props as ButtonGroupProps } from "../../components/button-group/ButtonGroup";
+import { ButtonGroup } from "../../components/button-group/ButtonGroup";
 
 export class ControllerPage extends React.Component {
     
