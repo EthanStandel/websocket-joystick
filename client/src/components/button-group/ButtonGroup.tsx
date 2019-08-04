@@ -19,38 +19,34 @@ export interface Props {
     westLabel?: string | React.ReactNode;
 }
 
-export class ButtonGroup extends React.Component<Props> {
+const DEFAULT_LABELS = {
+    northLabel: "N",
+    eastLabel: "E",
+    southLabel: "S",
+    westLabel: "W"
+};
 
-    private readonly DEFAULT_LABELS = {
-        northLabel: "N",
-        eastLabel: "E",
-        southLabel: "S",
-        westLabel: "W"
-    };
-
-    public render(): React.ReactNode {
-        return (
-            <div className={ButtonGroup.name}>
-                <div className="topGroup">
-                    <Fab onClick={event => this.props.onClick(event, Direction.North)}>
-                        { this.props.northLabel || this.DEFAULT_LABELS.northLabel }
-                    </Fab>
-                </div>
-                <div className="middleGroup">
-                    <Fab onClick={event => this.props.onClick(event, Direction.West)}>
-                        { this.props.westLabel || this.DEFAULT_LABELS.westLabel }
-                    </Fab>
-                    <Fab onClick={event => this.props.onClick(event, Direction.East)}>
-                        { this.props.eastLabel || this.DEFAULT_LABELS.eastLabel }
-                    </Fab>
-                </div>
-                <div className="bottomGroup">
-                    <Fab onClick={event => this.props.onClick(event, Direction.South)}>
-                        { this.props.southLabel || this.DEFAULT_LABELS.southLabel }
-                    </Fab>
-                </div>
+export const ButtonGroup = (props: Props) => {
+    return (
+        <div className={ButtonGroup.name}>
+            <div className="topGroup">
+                <Fab onClick={event => props.onClick(event, Direction.North)}>
+                    { props.northLabel || DEFAULT_LABELS.northLabel }
+                </Fab>
             </div>
-        );
-    }
-
+            <div className="middleGroup">
+                <Fab onClick={event => props.onClick(event, Direction.West)}>
+                    { props.westLabel || DEFAULT_LABELS.westLabel }
+                </Fab>
+                <Fab onClick={event => props.onClick(event, Direction.East)}>
+                    { props.eastLabel || DEFAULT_LABELS.eastLabel }
+                </Fab>
+            </div>
+            <div className="bottomGroup">
+                <Fab onClick={event => props.onClick(event, Direction.South)}>
+                    { props.southLabel || DEFAULT_LABELS.southLabel }
+                </Fab>
+            </div>
+        </div>
+    );
 }

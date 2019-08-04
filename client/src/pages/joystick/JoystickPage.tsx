@@ -5,31 +5,23 @@ import { Subject, fromEvent } from "rxjs";
 import { switchMapTo, tap, map } from "rxjs/operators";
 import "./JoystickPage.scss";
 
-export class JoystickPage extends React.Component {
+const SOCKET_URL = "ws://localhost:8000/";
+const joystickState$ = new Subject<JoystickState>();
+const socket = new WebSocket(SOCKET_URL);
 
-    private readonly SOCKET_URL = "ws://localhost:8000/";
-    private readonly joystickState$ = new Subject<JoystickState>();
+fromEvent(socket, "open").pipe(
+    tap(() => console.log("Socket open")),
+    switchMapTo(joystickState$),
+    map(state => JSON.stringify(state))
+).subscribe(stateString => socket.send(stateString));
 
-    public constructor(props: any) {
-        super(props);
-
-        const socket = new WebSocket(this.SOCKET_URL);
-
-        fromEvent(socket, "open").pipe(
-            tap(() => console.log("Socket open")),
-            switchMapTo(this.joystickState$),
-            map(state => JSON.stringify(state))
-        ).subscribe(stateString => socket.send(stateString));
-    }
-
-    public render(): React.ReactNode {
-        return (
-            <div className="rootContainer">
-                <Joystick joystickState$={this.joystickState$}
-                          handleDiameter={150}>
-                    Drag 🕹 me!
-                </Joystick>
-            </div>
-        );
-    }
+export const JoystickPage = () => {
+    return (
+        <div className="rootContainer">
+            <Joystick joystickState={state => joystickState$.next(state)}
+                        handleDiameter={150}>
+                Drag 🕹 me!
+            </Joystick>
+        </div>
+    );
 }
